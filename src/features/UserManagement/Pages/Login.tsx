@@ -33,9 +33,9 @@ const Login: React.FC = () => {
         alert("USER NOT FOUND");
       } else {
         setAuth({
-          user: result?.user,
-          accessToken: result?.accessToken,
-          role: result?.role,
+          user: result,
+          accessToken: result?.token,
+          role: result?.role_id,
         });
         navigate("/");
       }

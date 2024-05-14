@@ -3,7 +3,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
 interface IProtectedRoute {
-  allowedRoles: string[];
+  allowedRoles: number[];
 }
 const ProtectedRoute = ({ allowedRoles }: IProtectedRoute) => {
   const location = useLocation();

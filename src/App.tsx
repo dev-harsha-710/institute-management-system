@@ -10,6 +10,8 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import Dashboard from "./features/UserManagement/Pages/Dashboard";
 import Cards from "./components/Cards/Cards";
 import Courses from "./features/Courses/Pages/Courses";
+import ProtectedRoute from "./components/Authorization/ProtectedRoute";
+import { UserRole } from "./utils/RolesEnum";
 
 function App() {
   return (
@@ -19,8 +21,23 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register" element={<RegistrationForm />} />
-          <Route path="/" element={<Layout sidebar={<Sidebar />}></Layout>}>
-            <Route path="/" element={<Courses />}></Route>
+          <Route path="/" element={<Layout sidebar={<Sidebar />} />}>
+            <Route
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    UserRole.ADMIN,
+                    UserRole.FACULTY,
+                    UserRole.STUDENT,
+                  ]}
+                />
+              }
+            >
+              <Route path="/" element={<Courses />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
+              <Route path="/income" element={<Courses />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>
