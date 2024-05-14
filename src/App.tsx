@@ -12,6 +12,7 @@ import Cards from "./components/Cards/Cards";
 import Courses from "./features/Courses/Pages/Courses";
 import ProtectedRoute from "./components/Authorization/ProtectedRoute";
 import { UserRole } from "./utils/RolesEnum";
+import Unauthorized from "./features/UserManagement/Pages/Unauthorized";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             >
               <Route path="/" element={<Courses />} />
             </Route>
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
               <Route path="/income" element={<Courses />} />
             </Route>
