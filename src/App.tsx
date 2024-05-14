@@ -1,24 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import Login from "./features/UserManagement/Pages/Login";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout/layout";
+import ResetPassword from "./features/UserManagement/Pages/ResetPassword";
+import RegistrationForm from "./features/UserManagement/Pages/RegistrationForm";
+import Sidebar from "./components/Sidebar/Sidebar";
+import Dashboard from "./features/UserManagement/Pages/Dashboard";
+import Cards from "./components/Cards/Cards";
+import Courses from "./features/Courses/Pages/Courses";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/register" element={<RegistrationForm />} />
+          <Route path="/" element={<Layout sidebar={<Sidebar />}></Layout>}>
+            <Route path="/" element={<Courses />}></Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
