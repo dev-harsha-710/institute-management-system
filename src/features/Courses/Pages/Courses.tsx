@@ -5,13 +5,28 @@ import Modal from "../../../components/Modals/Modal";
 
 const Courses = () => {
   const [toggle, setToggle] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<any>(null);
 
-  const openEnrollmentModal = () => {
-    setToggle(true);
+  const toggleModal = () => {
+    setToggle(!toggle);
+  };
+  const handleCardClick = (data: any) => {
+    setSelectedCard(data);
+    toggleModal();
+  };
+  const handleFormSubmit = (formData: any) => {
+    console.log("Form Submitted with card data:", formData);
   };
   return (
     <>
-      {toggle ? <Modal isOpen={toggle} /> : null}
+      {toggle && selectedCard ? (
+        <Modal
+          isOpen={toggle}
+          toggle={toggleModal}
+          onSubmit={handleFormSubmit}
+          selectedCard={selectedCard}
+        />
+      ) : null}
       <div className="text-3xl font-bold text-gray-600 mb-7 mt-2 ">
         Available Courses
       </div>
@@ -24,7 +39,7 @@ const Courses = () => {
             price: 299,
             productName: "HTML 4",
             description: "Skeleton of website",
-            onClick: openEnrollmentModal,
+            onClick: toggleModal,
           },
           {
             imageUrl: HTML,
@@ -32,7 +47,7 @@ const Courses = () => {
             price: 299,
             productName: "HTML 5",
             description: "Enhanced HTML",
-            onClick: openEnrollmentModal,
+            onClick: toggleModal,
           },
           {
             imageUrl: HTML,
@@ -40,7 +55,7 @@ const Courses = () => {
             price: 399,
             productName: "CSS",
             description: "Styles the website",
-            onClick: openEnrollmentModal,
+            onClick: toggleModal,
           },
           {
             imageUrl: HTML,
@@ -48,7 +63,7 @@ const Courses = () => {
             price: 399,
             productName: "CSS 3",
             description: "Enhanced CSS",
-            onClick: openEnrollmentModal,
+            onClick: toggleModal,
           },
           {
             imageUrl: HTML,
@@ -56,7 +71,7 @@ const Courses = () => {
             price: 599,
             productName: "Javascript",
             description: "Makes the website dynamic",
-            onClick: openEnrollmentModal,
+            onClick: toggleModal,
           },
           {
             imageUrl: HTML,
@@ -64,9 +79,10 @@ const Courses = () => {
             price: 1500,
             productName: "Java",
             description: "Makes the website dynamic",
-            onClick: openEnrollmentModal,
+            onClick: toggleModal,
           },
         ]}
+        onCardClick={handleCardClick}
       />
     </>
   );

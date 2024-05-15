@@ -1,153 +1,200 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Form from "../Forms/Form/Form";
-import Label from "../Forms/Label/label";
 import Button from "../Forms/Button/Button";
 
 export interface IModal {
   isOpen: boolean;
+  toggle: () => void;
+  onSubmit: (data: any) => void;
+  selectedCard: any;
 }
 
-const Modal: React.FC<IModal> = ({ isOpen }) => {
-  useEffect(() => {
-    isOpen && open();
-  }, [isOpen]);
+interface IEnrollmentData {
+  courseName: string;
+  courseFees: string;
+  paidFees: string;
+  balanceFees: string;
+  incomeAmount: string;
+  transactionId: string;
+  userId: string;
+  revenueCategoryId: string;
+}
 
-  const close = () => {
-    const element = Array.from(
-      document.getElementsByClassName(
-        "authentication-modal"
-      ) as HTMLCollectionOf<HTMLElement>
-    );
-    element[0].classList.add("hidden");
-    isOpen = false;
+const Modal: React.FC<IModal> = ({
+  isOpen,
+  toggle,
+  onSubmit,
+  selectedCard,
+}) => {
+  const [enrollmentData, setEnrollmentData] = useState<IEnrollmentData>({
+    courseName: selectedCard?.productName || "",
+    courseFees: selectedCard?.price.toString() || "",
+    paidFees: "",
+    balanceFees: "",
+    incomeAmount: "",
+    transactionId: "454545",
+    userId: "44",
+    revenueCategoryId: "1063",
+  });
+
+  useEffect(() => {
+    if (isOpen && selectedCard) {
+      setEnrollmentData({
+        ...enrollmentData,
+        courseName: selectedCard.productName,
+        courseFees: selectedCard.price.toString(),
+      });
+    }
+  }, [isOpen, selectedCard]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    if (name === "paidFees") {
+      const balance = calculateBalance(value, enrollmentData.courseFees);
+      setEnrollmentData({
+        ...enrollmentData,
+        [name]: value,
+        incomeAmount: value,
+        balanceFees: balance,
+      });
+    } else {
+      setEnrollmentData({
+        ...enrollmentData,
+        [name]: value,
+      });
+    }
   };
 
-  const open = () => {
-    const element = Array.from(
-      document.getElementsByClassName(
-        "authentication-modal"
-      ) as HTMLCollectionOf<HTMLElement>
-    );
-    element[0].classList.remove("hidden");
+  const calculateBalance = (paidFees: string, courseFees: string) => {
+    const paid = parseFloat(paidFees);
+    const course = parseFloat(courseFees);
+    if (!isNaN(paid) && !isNaN(course)) {
+      return (course - paid).toString();
+    }
+    return "";
+  };
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    onSubmit(enrollmentData);
+    toggle();
   };
 
   return (
-    <div className="w-full flex justify-center">
-      <div
-        id="authentication-modal"
-        tabIndex={-1}
-        aria-hidden="true"
-        className="authentication-modal hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-      >
-        <div className="relative p-4 w-full max-w-md max-h-full">
-          <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Enrollment Form
-              </h3>
-              <Button
-                type="button"
-                className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                onClick={close}
-              >
-                <svg
-                  className="w-3 h-3"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 14 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                  />
-                </svg>
-                <span className="sr-only">Close modal</span>
-              </Button>
-            </div>
-            <div className="p-4 md:p-5">
-              {/* <Form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 flex justify-center items-center bg-blue-950 bg-opacity-50 z-50">
+          <div className="authentication-modal overflow-y-auto overflow-x-hidden fixed z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div className="relative p-4 w-full max-w-lg max-h-full">
+              <div className="relative bg-white rounded-lg shadow dark:bg-gray-700 ">
+                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 ">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Enrollment Form
+                  </h3>
+                  <Button
+                    type="button"
+                    className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                    onClick={toggle}
                   >
-                    Your email
-                  </Label>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    placeholder="name@company.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Your password
-                  </Label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    placeholder="••••••••"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    required
-                  />
-                </div>
-                <div className="flex justify-between">
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="remember"
-                        type="checkbox"
-                        value=""
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-600 dark:border-gray-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-                        required
-                      />
-                    </div>
-                    <Label
-                      htmlFor="remember"
-                      className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    <svg
+                      className="w-3 h-3"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 14 14"
                     >
-                      Remember me
-                    </Label>
-                  </div>
-                  <a
-                    href="#"
-                    className="text-sm text-blue-700 hover:underline dark:text-blue-500"
-                  >
-                    Lost Password?
-                  </a>
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                      />
+                    </svg>
+                    <span className="sr-only">Close modal</span>
+                  </Button>
                 </div>
-                <Button
-                  type="submit"
-                  className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                  Login to your account
-                </Button>
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-                  Not registered?{" "}
-                  <a
-                    href="#"
-                    className="text-blue-700 hover:underline dark:text-blue-500"
-                  >
-                    Create account
-                  </a>
+                <div className="p-4 md:p-5 dark:text-white">
+                  <Form
+                    submit={handleSubmit}
+                    inputs={[
+                      {
+                        name: "courseName",
+                        label: "Course Name",
+                        type: "text",
+                        value: enrollmentData.courseName,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        name: "courseFees",
+                        label: "Course Fees",
+                        type: "number",
+                        value: enrollmentData.courseFees,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        name: "paidFees",
+                        label: "Enter Paid Fees",
+                        type: "number",
+                        value: enrollmentData.paidFees,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        name: "balanceFees",
+                        label: "Balance Fees",
+                        type: "number",
+                        value: enrollmentData.balanceFees,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        type: "number",
+                        label: "Income Amount",
+                        name: "incomeAmount",
+                        value: enrollmentData.incomeAmount,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        name: "transactionId",
+                        label: "Transaction Id",
+                        type: "number",
+                        value: enrollmentData.transactionId,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        name: "userId",
+                        label: "User Id",
+                        type: "number",
+                        value: enrollmentData.userId,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                      {
+                        name: "revenueCategoryId",
+                        label: "Revenue Category Id",
+                        type: "number",
+                        value: enrollmentData.revenueCategoryId,
+                        onChange: handleInputChange,
+                        placeholder: "",
+                      },
+                    ]}
+                    buttons={[
+                      { type: "submit", name: "submit" },
+                      { type: "reset", name: "reset" },
+                    ]}
+                  />
                 </div>
-              </Form> */}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

@@ -4,9 +4,10 @@ export interface ICard {
   duration: number;
   price: number;
   description: string;
-  onClick: () => void;
+  onClick: (data: any) => void;
 }
 
 export interface ICards {
   cardData: ICard[];
+  onCardClick: (data: any) => void;
 }
