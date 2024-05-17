@@ -1,22 +1,104 @@
 import React, { useEffect, useState } from "react";
 import Cards from "../../../components/Cards/Cards";
 import HTML from "../../../assets/images/HTML.png";
+import Form from "../../../components/Forms/Form/Form";
+import useAuth from "../../../hooks/useAuth";
 import Modal from "../../../components/Modals/Modal";
+
+interface IEnrollmentData {
+  courseName: string;
+  courseFees: string;
+  paidFees: string;
+  balanceFees: string;
+  incomeAmount: string;
+  transactionId: string;
+  userId: string;
+  revenueCategoryId: string;
+}
 
 const Courses = () => {
   const [toggle, setToggle] = useState(false);
   const [selectedCard, setSelectedCard] = useState<any>(null);
+  const { auth } = useAuth();
+
+  const initialEnrollmentData: IEnrollmentData = {
+    courseName: selectedCard ? selectedCard.productName : "",
+    courseFees: selectedCard ? selectedCard.price.toString() : "",
+    paidFees: "",
+    balanceFees: "",
+    incomeAmount: "",
+    transactionId: "454545",
+    userId: auth.user.user_id || "",
+    revenueCategoryId: "1063",
+  };
+
+  const [enrollmentData, setEnrollmentData] = useState<IEnrollmentData>(
+    initialEnrollmentData
+  );
+
+  useEffect(() => {
+    if (toggle && selectedCard) {
+      setEnrollmentData({
+        courseName: selectedCard.productName,
+        courseFees: selectedCard.price.toString(),
+        paidFees: "",
+        balanceFees: "",
+        incomeAmount: "",
+        transactionId: "454545",
+        userId: auth.user.user_id,
+        revenueCategoryId: "1063",
+      });
+    }
+  }, [toggle, selectedCard, auth]);
 
   const toggleModal = () => {
     setToggle(!toggle);
   };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    if (name === "paidFees") {
+      const balance = calculateBalance(value, enrollmentData.courseFees);
+      setEnrollmentData({
+        ...enrollmentData,
+        [name]: value,
+        incomeAmount: value,
+        balanceFees: balance,
+      });
+    } else {
+      setEnrollmentData({
+        ...enrollmentData,
+        [name]: value,
+      });
+    }
+  };
+
+  const calculateBalance = (paidFees: string, courseFees: string) => {
+    const paid = parseFloat(paidFees);
+    const course = parseFloat(courseFees);
+    if (!isNaN(paid) && !isNaN(course)) {
+      return (course - paid).toString();
+    }
+    return "";
+  };
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    console.log(enrollmentData);
+    setEnrollmentData(initialEnrollmentData);
+    setToggle(false);
+  };
+
   const handleCardClick = (data: any) => {
     setSelectedCard(data);
     toggleModal();
   };
+
   const handleFormSubmit = (formData: any) => {
     console.log("Form Submitted with card data:", formData);
   };
+
   return (
     <>
       {toggle && selectedCard ? (
@@ -25,9 +107,93 @@ const Courses = () => {
           toggle={toggleModal}
           onSubmit={handleFormSubmit}
           selectedCard={selectedCard}
-        />
+          heading="Enrollment form"
+        >
+          <Form
+            submit={handleSubmit}
+            inputs={[
+              {
+                name: "courseName",
+                label: "Course Name",
+                type: "text",
+                value: enrollmentData.courseName,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+              {
+                name: "courseFees",
+                label: "Course Fees",
+                type: "number",
+                value: enrollmentData.courseFees,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+              {
+                name: "paidFees",
+                label: "Enter Paid Fees",
+                type: "number",
+                value: enrollmentData.paidFees,
+                onChange: handleInputChange,
+                placeholder: "",
+                min: "100",
+                max: enrollmentData.courseFees,
+              },
+              {
+                name: "balanceFees",
+                label: "Balance Fees",
+                type: "number",
+                value: enrollmentData.balanceFees,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+              {
+                type: "number",
+                label: "Income Amount",
+                name: "incomeAmount",
+                value: enrollmentData.incomeAmount,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+              {
+                name: "transactionId",
+                label: "Transaction Id",
+                type: "number",
+                value: enrollmentData.transactionId,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+              {
+                name: "userId",
+                label: "User Id",
+                type: "number",
+                value: enrollmentData.userId,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+              {
+                name: "revenueCategoryId",
+                label: "Revenue Category Id",
+                type: "number",
+                value: enrollmentData.revenueCategoryId,
+                onChange: handleInputChange,
+                placeholder: "",
+                readOnly: true,
+              },
+            ]}
+            buttons={[
+              { type: "submit", name: "submit" },
+              { type: "reset", name: "reset" },
+            ]}
+          />
+        </Modal>
       ) : null}
-      <div className="text-3xl font-bold text-gray-600 mb-7 mt-2 ">
+      <div className="text-3xl font-bold text-gray-600 mb-7 mt-2">
         Available Courses
       </div>
 
@@ -39,7 +205,7 @@ const Courses = () => {
             price: 299,
             productName: "HTML 4",
             description: "Skeleton of website",
-            onClick: toggleModal,
+            onClick: handleCardClick,
           },
           {
             imageUrl: HTML,
@@ -47,7 +213,7 @@ const Courses = () => {
             price: 299,
             productName: "HTML 5",
             description: "Enhanced HTML",
-            onClick: toggleModal,
+            onClick: handleCardClick,
           },
           {
             imageUrl: HTML,
@@ -55,7 +221,7 @@ const Courses = () => {
             price: 399,
             productName: "CSS",
             description: "Styles the website",
-            onClick: toggleModal,
+            onClick: handleCardClick,
           },
           {
             imageUrl: HTML,
@@ -63,7 +229,7 @@ const Courses = () => {
             price: 399,
             productName: "CSS 3",
             description: "Enhanced CSS",
-            onClick: toggleModal,
+            onClick: handleCardClick,
           },
           {
             imageUrl: HTML,
@@ -71,7 +237,7 @@ const Courses = () => {
             price: 599,
             productName: "Javascript",
             description: "Makes the website dynamic",
-            onClick: toggleModal,
+            onClick: handleCardClick,
           },
           {
             imageUrl: HTML,
@@ -79,7 +245,7 @@ const Courses = () => {
             price: 1500,
             productName: "Java",
             description: "Makes the website dynamic",
-            onClick: toggleModal,
+            onClick: handleCardClick,
           },
         ]}
         onCardClick={handleCardClick}

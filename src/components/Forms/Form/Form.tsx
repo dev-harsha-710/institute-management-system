@@ -34,6 +34,9 @@ const Form: React.FC<IForm> = ({
               onChange={myInput.onChange}
               placeholder={myInput.placeholder}
               name={myInput.name}
+              readOnly={myInput.readOnly}
+              min={myInput.min}
+              max={myInput.max}
             />
           </div>
         ))}

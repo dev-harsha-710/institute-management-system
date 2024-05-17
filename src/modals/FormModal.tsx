@@ -19,6 +19,9 @@ export interface IInput {
   placeholder: string;
   value: string | undefined;
   label?: string;
+  readOnly?: boolean;
+  min?: string;
+  max?: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 export interface IRadioInput {

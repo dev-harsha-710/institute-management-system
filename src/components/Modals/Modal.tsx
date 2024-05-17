@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Form from "../Forms/Form/Form";
 import Button from "../Forms/Button/Button";
+import useAuth from "../../hooks/useAuth";
 
 export interface IModal {
   isOpen: boolean;
   toggle: () => void;
   onSubmit: (data: any) => void;
   selectedCard: any;
-}
-
-interface IEnrollmentData {
-  courseName: string;
-  courseFees: string;
-  paidFees: string;
-  balanceFees: string;
-  incomeAmount: string;
-  transactionId: string;
-  userId: string;
-  revenueCategoryId: string;
+  heading: string;
+  children: React.ReactNode;
 }
 
 const Modal: React.FC<IModal> = ({
@@ -25,61 +17,9 @@ const Modal: React.FC<IModal> = ({
   toggle,
   onSubmit,
   selectedCard,
+  heading,
+  children,
 }) => {
-  const [enrollmentData, setEnrollmentData] = useState<IEnrollmentData>({
-    courseName: selectedCard?.productName || "",
-    courseFees: selectedCard?.price.toString() || "",
-    paidFees: "",
-    balanceFees: "",
-    incomeAmount: "",
-    transactionId: "454545",
-    userId: "44",
-    revenueCategoryId: "1063",
-  });
-
-  useEffect(() => {
-    if (isOpen && selectedCard) {
-      setEnrollmentData({
-        ...enrollmentData,
-        courseName: selectedCard.productName,
-        courseFees: selectedCard.price.toString(),
-      });
-    }
-  }, [isOpen, selectedCard]);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    if (name === "paidFees") {
-      const balance = calculateBalance(value, enrollmentData.courseFees);
-      setEnrollmentData({
-        ...enrollmentData,
-        [name]: value,
-        incomeAmount: value,
-        balanceFees: balance,
-      });
-    } else {
-      setEnrollmentData({
-        ...enrollmentData,
-        [name]: value,
-      });
-    }
-  };
-
-  const calculateBalance = (paidFees: string, courseFees: string) => {
-    const paid = parseFloat(paidFees);
-    const course = parseFloat(courseFees);
-    if (!isNaN(paid) && !isNaN(course)) {
-      return (course - paid).toString();
-    }
-    return "";
-  };
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    onSubmit(enrollmentData);
-    toggle();
-  };
-
   return (
     <>
       {isOpen && (
@@ -89,7 +29,7 @@ const Modal: React.FC<IModal> = ({
               <div className="relative bg-white rounded-lg shadow dark:bg-gray-700 ">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 ">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Enrollment Form
+                    {heading}
                   </h3>
                   <Button
                     type="button"
@@ -114,81 +54,7 @@ const Modal: React.FC<IModal> = ({
                     <span className="sr-only">Close modal</span>
                   </Button>
                 </div>
-                <div className="p-4 md:p-5 dark:text-white">
-                  <Form
-                    submit={handleSubmit}
-                    inputs={[
-                      {
-                        name: "courseName",
-                        label: "Course Name",
-                        type: "text",
-                        value: enrollmentData.courseName,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        name: "courseFees",
-                        label: "Course Fees",
-                        type: "number",
-                        value: enrollmentData.courseFees,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        name: "paidFees",
-                        label: "Enter Paid Fees",
-                        type: "number",
-                        value: enrollmentData.paidFees,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        name: "balanceFees",
-                        label: "Balance Fees",
-                        type: "number",
-                        value: enrollmentData.balanceFees,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        type: "number",
-                        label: "Income Amount",
-                        name: "incomeAmount",
-                        value: enrollmentData.incomeAmount,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        name: "transactionId",
-                        label: "Transaction Id",
-                        type: "number",
-                        value: enrollmentData.transactionId,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        name: "userId",
-                        label: "User Id",
-                        type: "number",
-                        value: enrollmentData.userId,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                      {
-                        name: "revenueCategoryId",
-                        label: "Revenue Category Id",
-                        type: "number",
-                        value: enrollmentData.revenueCategoryId,
-                        onChange: handleInputChange,
-                        placeholder: "",
-                      },
-                    ]}
-                    buttons={[
-                      { type: "submit", name: "submit" },
-                      { type: "reset", name: "reset" },
-                    ]}
-                  />
-                </div>
+                <div className="p-4 md:p-5 dark:text-white">{children}</div>
               </div>
             </div>
           </div>

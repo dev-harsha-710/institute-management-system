@@ -7,6 +7,9 @@ const Input: React.FC<IInput> = ({
   value,
   onChange,
   name,
+  readOnly,
+  min,
+  max,
 }) => {
   return (
     <div className="mb-4 text-left text-md">
@@ -17,6 +20,9 @@ const Input: React.FC<IInput> = ({
         value={value}
         onChange={onChange}
         name={name}
+        readOnly={readOnly}
+        min={min}
+        max={max}
       />
     </div>
   );
