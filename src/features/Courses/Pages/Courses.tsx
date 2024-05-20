@@ -150,8 +150,7 @@ const Courses = () => {
                 readOnly: true,
               },
               {
-                type: "number",
-                label: "Income Amount",
+                type: "hidden",
                 name: "incomeAmount",
                 value: enrollmentData.incomeAmount,
                 onChange: handleInputChange,
@@ -160,8 +159,7 @@ const Courses = () => {
               },
               {
                 name: "transactionId",
-                label: "Transaction Id",
-                type: "number",
+                type: "hidden",
                 value: enrollmentData.transactionId,
                 onChange: handleInputChange,
                 placeholder: "",
@@ -169,8 +167,7 @@ const Courses = () => {
               },
               {
                 name: "userId",
-                label: "User Id",
-                type: "number",
+                type: "hidden",
                 value: enrollmentData.userId,
                 onChange: handleInputChange,
                 placeholder: "",
@@ -178,8 +175,7 @@ const Courses = () => {
               },
               {
                 name: "revenueCategoryId",
-                label: "Revenue Category Id",
-                type: "number",
+                type: "hidden",
                 value: enrollmentData.revenueCategoryId,
                 onChange: handleInputChange,
                 placeholder: "",

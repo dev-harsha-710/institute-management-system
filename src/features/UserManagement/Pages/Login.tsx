@@ -7,8 +7,11 @@ import { login } from "../Services/authService";
 import { ILogin } from "../../../modals/FormModal";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { loginFailure, loginSuccess } from "../../../redux/Store/authActions";
 
 const Login: React.FC = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [credentials, setCredentials] = useState<ILogin>({
@@ -37,10 +40,13 @@ const Login: React.FC = () => {
           accessToken: result?.token,
           role: result?.role_id,
         });
+        dispatch(loginSuccess(result.user, result.accessToken, result.role));
+
         navigate("/");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error);
+      dispatch(loginFailure(error.message));
     }
   };
 

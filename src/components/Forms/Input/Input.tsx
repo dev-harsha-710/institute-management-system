@@ -12,7 +12,7 @@ const Input: React.FC<IInput> = ({
   max,
 }) => {
   return (
-    <div className="mb-4 text-left text-md">
+    <div className="text-left text-md">
       <input
         type={type}
         className="appearance-none border border-gray-300 rounded min-w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500"
