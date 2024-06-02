@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../../components/Forms/Button/Button";
 import Label from "../../../components/Forms/Label/label";
 import Input from "../../../components/Forms/Input/Input";
@@ -8,6 +8,7 @@ import Header from "../../../components/Forms/Header/Header";
 import { IRegister } from "../../../modals/FormModal";
 import Form from "../../../components/Forms/Form/Form";
 import { text } from "stream/consumers";
+import { convertKeysToSnakeCase } from "../../../utils/CaseConvertor";
 
 const RegistrationForm: React.FC = () => {
   const [info, setInfo] = useState<IRegister>({
@@ -27,7 +28,10 @@ const RegistrationForm: React.FC = () => {
     confirmPassword: "",
     dateOfBirth: "",
   });
-
+  useEffect(() => {
+    const obj = convertKeysToSnakeCase(info);
+    console.log(obj);
+  }, []);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInfo({
       ...info,

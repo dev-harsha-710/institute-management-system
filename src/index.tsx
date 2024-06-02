@@ -10,9 +10,9 @@ import store from "./redux/Store/store";
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      {/* <AuthProvider> */}
+      <App />
+      {/* </AuthProvider> */}
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")

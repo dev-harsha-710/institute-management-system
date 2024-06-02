@@ -6,7 +6,7 @@ interface IAuthContext {
 }
 
 const AuthContext = createContext<IAuthContext>({
-  auth: "",
+  auth: {},
   setAuth: () => {},
 });
 

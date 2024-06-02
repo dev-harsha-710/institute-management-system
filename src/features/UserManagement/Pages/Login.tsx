@@ -3,15 +3,14 @@ import Header from "../../../components/Forms/Header/Header";
 import FormWrapper from "../../../components/Forms/FormWrapper/FormWrapper";
 import Form from "../../../components/Forms/Form/Form";
 import backgroundImage from "../../../assets/images/Untitled.jpeg";
-import { login } from "../Services/authService";
 import { ILogin } from "../../../modals/FormModal";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
-import { useDispatch } from "react-redux";
-import { loginFailure, loginSuccess } from "../../../redux/Store/authActions";
+import { useAppDispatch } from "../../../redux/Store/hooks";
+import { loginAction } from "../../../redux/Action/Auth/authActions";
 
 const Login: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [credentials, setCredentials] = useState<ILogin>({
@@ -20,6 +19,7 @@ const Login: React.FC = () => {
   });
 
   const { setAuth } = useAuth();
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({
       ...credentials,
@@ -30,23 +30,21 @@ const Login: React.FC = () => {
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     try {
-      const result = await login(credentials.email, credentials.password);
-      console.log("Login successful! Result:", result);
-      if (result === "USER NOT FOUND") {
-        alert("USER NOT FOUND");
-      } else {
-        setAuth({
-          user: result,
-          accessToken: result?.token,
-          role: result?.role_id,
-        });
-        dispatch(loginSuccess(result.user, result.accessToken, result.role));
+      const resultAction = await dispatch(loginAction(credentials));
+      console.log(resultAction);
 
+      if (loginAction.fulfilled.match(resultAction)) {
         navigate("/");
+      } else {
+        if (resultAction.payload?.error) {
+          console.error(resultAction.payload.error);
+        } else {
+          alert("Login failed. Please try again.");
+        }
       }
     } catch (error: any) {
       console.error("Login failed:", error);
-      dispatch(loginFailure(error.message));
+      alert("Login failed. Please try again.");
     }
   };
 

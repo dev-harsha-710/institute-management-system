@@ -9,6 +9,7 @@ export const login = async (email: string, password: string) => {
       password,
     });
     const result = response.data;
+    console.log(response);
     return result;
   } catch (error) {
     console.error("Error occurred during login:", error);

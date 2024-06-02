@@ -43,7 +43,7 @@ const Form: React.FC<IForm> = ({
         {radioInputs && radioInputs.length > 0 && (
           <div className="relative">
             {radioInputs.map((radioInput, index) => (
-              <div className="">
+              <div className="" key={index}>
                 <Label text={radioInput.label} />
                 <div className="flex justify-between pt-3">
                   {radioInput.options &&
@@ -64,8 +64,8 @@ const Form: React.FC<IForm> = ({
         )}
         {selectInputs &&
           Array.isArray(selectInputs) &&
-          selectInputs.map((selectInput) => (
-            <div className="relative">
+          selectInputs.map((selectInput, index) => (
+            <div className="relative" key={index}>
               <Label text={selectInput.label} />
               <SelectionInput
                 options={selectInput.options}
@@ -87,8 +87,8 @@ const Form: React.FC<IForm> = ({
           buttons.length > 1 ? `grid grid-cols-1 md:grid-cols-2 gap-6` : ``
         }
       >
-        {buttons.map((button) => (
-          <div className="relative">
+        {buttons.map((button, index) => (
+          <div className="relative" key={index}>
             <Button type={button.type} name={button.name} />
           </div>
         ))}

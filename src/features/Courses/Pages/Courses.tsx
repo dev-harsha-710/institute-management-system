@@ -4,6 +4,7 @@ import HTML from "../../../assets/images/HTML.png";
 import Form from "../../../components/Forms/Form/Form";
 import useAuth from "../../../hooks/useAuth";
 import Modal from "../../../components/Modals/Modal";
+import { useSelector } from "react-redux";
 
 interface IEnrollmentData {
   courseName: string;
@@ -19,7 +20,8 @@ interface IEnrollmentData {
 const Courses = () => {
   const [toggle, setToggle] = useState(false);
   const [selectedCard, setSelectedCard] = useState<any>(null);
-  const { auth } = useAuth();
+  // const { auth } = useAuth();
+  const auth = useSelector((state: any) => state.auth);
 
   const initialEnrollmentData: IEnrollmentData = {
     courseName: selectedCard ? selectedCard.productName : "",
@@ -237,10 +239,10 @@ const Courses = () => {
           },
           {
             imageUrl: HTML,
-            duration: 6,
+            duration: 8,
             price: 1500,
             productName: "Java",
-            description: "Makes the website dynamic",
+            description: "Java fuels enterprise solutions",
             onClick: handleCardClick,
           },
         ]}
