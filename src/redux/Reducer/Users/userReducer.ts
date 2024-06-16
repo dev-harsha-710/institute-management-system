@@ -1,10 +1,9 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getUsersAction } from "../../Action/Users/UserAction";
-import { LoginError } from "../../Action/Auth/authActions";
 import { User } from "../../../features/UserManagement/Services/UserService";
 
 interface UserState {
-  users: any;
+  users: User[] | null;
   loading: boolean;
   error: string | null;
 }
@@ -21,30 +20,32 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getUsersAction.pending, (state) => {})
+      .addCase(getUsersAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        console.log("Fetching users: pending");
+      })
       .addCase(
         getUsersAction.fulfilled,
-        (
-          state,
-          action: PayloadAction<{
-            users: User[];
-          }>
-        ) => {
+        (state, action: PayloadAction<{ users: User[] }>) => {
           state.users = action.payload.users;
+          state.loading = false;
           state.error = null;
+          console.log("Fetching users: fulfilled", action.payload.users);
         }
       )
       .addCase(
         getUsersAction.rejected,
-        (state, action: PayloadAction<LoginError | undefined>) => {
-          if (action.payload) {
-            state.error = action.payload.error;
-          } else {
-            state.error = "An error occurred.";
-          }
+        (state, action: PayloadAction<{ error: string } | undefined>) => {
+          state.loading = false;
+          state.error = action.payload
+            ? action.payload.error
+            : "An error occurred.";
+          console.log("Fetching users: rejected", state.error);
           state.users = null;
         }
       );
   },
 });
+
 export default userSlice.reducer;

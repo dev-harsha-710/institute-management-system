@@ -26,6 +26,7 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     getUsers();
+    console.log(users);
   }, [userType, isActive]);
 
   const handleSort = (field: string) => {
@@ -61,6 +62,8 @@ const Users: React.FC = () => {
         onPageChange={setCurrentPage}
         handleChangeUserType={handleChangeUserType}
         userType={userType}
+        isActive={isActive}
+        setIsActive={setIsActive}
       />
     </div>
   );

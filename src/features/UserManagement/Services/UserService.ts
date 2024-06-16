@@ -17,6 +17,7 @@ export interface User {
   subcaste: string;
   role_id: number;
   password: string;
+  isActive: boolean;
 }
 
 class UserService {
@@ -56,13 +57,10 @@ class UserService {
     }
   }
 
-  async getActiveUsers(isActive: boolean): Promise<User[]> {
+  async getActiveUsers(): Promise<User[]> {
     try {
-      const response = await axios.get(`${API_URL}users/isActive`, {
-        params: {
-          isActive: isActive ? "true" : "false",
-        },
-      });
+      const response = await axios.get(`${API_URL}users/isActive`, {});
+      console.log("getActiveUsers response:", response.data);
       return response.data.body;
     } catch (error) {
       throw new Error("Failed to fetch active users");

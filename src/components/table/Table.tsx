@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TableHeadingOrData from "../../components/table/TableHeadingOrData";
 import { User } from "../../features/UserManagement/Services/UserService";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
@@ -8,6 +8,7 @@ import { getUsersAction } from "../../redux/Action/Users/UserAction";
 import { Select } from "@material-tailwind/react";
 import SelectionInput from "../Forms/Input/SelectionInput";
 import Label from "../Forms/Label/label";
+import Input from "../Forms/Input/Input";
 
 interface TableProps {
   data: User[];
@@ -20,8 +21,10 @@ interface TableProps {
   onSort: (field: string) => void;
   onSearch: (term: string) => void;
   onPageChange: (page: number) => void;
-  handleChangeUserType: (type: string) => void;
-  userType: string;
+  handleChangeUserType?: (type: string) => void;
+  userType?: string;
+  isActive?: boolean;
+  setIsActive?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -37,17 +40,13 @@ const Table: React.FC<TableProps> = ({
   onPageChange,
   handleChangeUserType,
   userType,
+  isActive,
+  setIsActive,
 }) => {
-  const [isActive, setIsActive] = useState(false);
-  const dispatch = useAppDispatch();
+  // const [isActive, setIsActive] = useState(false);
 
   const handleCheckboxChange = async () => {
-    setIsActive((prevIsActive) => !prevIsActive);
-    if (!isActive) {
-      await dispatch(getUsersAction({ userType: "", isActive: true }));
-    } else {
-      await dispatch(getUsersAction({ userType: "", isActive: false }));
-    }
+    setIsActive && setIsActive(!isActive);
   };
 
   const sortedData = [...data].sort((a, b) => {
@@ -76,7 +75,9 @@ const Table: React.FC<TableProps> = ({
         <div className="flex items-center space-x-3">
           <SelectionInput
             name=""
-            onChange={(e) => handleChangeUserType(e.target.value)}
+            onChange={(e) =>
+              handleChangeUserType && handleChangeUserType(e.target.value)
+            }
             value={userType}
             options={[
               { value: "", text: "All" },
@@ -132,7 +133,7 @@ const Table: React.FC<TableProps> = ({
                   key="email"
                   text="Email"
                   type="heading"
-                  className="px-6 py-3 text-left text-gray-500 font-semibold uppercase cursor-pointer"
+                  className="px-6 py-3  text-gray-500 font-semibold uppercase cursor-pointer"
                   onClick={() => onSort("email")}
                 />
                 <TableHeadingOrData
@@ -148,8 +149,8 @@ const Table: React.FC<TableProps> = ({
                   className="px-6 py-3 text-left text-gray-500 font-semibold uppercase"
                 />
                 <TableHeadingOrData
-                  key="gender"
-                  text="Gender"
+                  key="qualification"
+                  text="Qualification"
                   type="heading"
                   className="px-6 py-3 text-left text-gray-500 font-semibold uppercase"
                 />
@@ -189,7 +190,7 @@ const Table: React.FC<TableProps> = ({
                     className="px-6 py-3"
                   />
                   <TableHeadingOrData
-                    text={user.gender}
+                    text={user.qualification}
                     type="data"
                     className="px-6 py-3"
                   />
