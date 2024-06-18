@@ -2,19 +2,31 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import UserService, {
   User,
 } from "../../../features/UserManagement/Services/UserService";
-import { hostname } from "os";
+import axios from "axios";
 
+export interface RegisterUserPayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  contact: number;
+  address: string;
+  qualification: string;
+  passing_year: number;
+  dob: string;
+  gender: string;
+  caste_category: string;
+  sub_caste: string;
+}
+export interface RegisterUserResponse {
+  user_id: number;
+}
+
+interface RegisterUserError {
+  error: string;
+}
 interface GetAllUserError {
   error: string;
-}
-
-interface SetUserActiveError {
-  error: string;
-}
-
-interface SetUserActivePayload {
-  userId: string; // Ensure userId is always a string
-  isActive: boolean;
 }
 
 export const getUsersAction = createAsyncThunk<
@@ -43,5 +55,22 @@ export const getUsersAction = createAsyncThunk<
     return { users };
   } catch (error: any) {
     return rejectWithValue({ error: error.message });
+  }
+});
+export const registerUserAction = createAsyncThunk<
+  RegisterUserResponse,
+  RegisterUserPayload,
+  { rejectValue: RegisterUserError }
+>("user/register", async (userData, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(
+      "https://developerschool-backend.onrender.com/api/v1/users/add",
+      userData
+    );
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      error: error.response?.data?.message || error.message,
+    });
   }
 });

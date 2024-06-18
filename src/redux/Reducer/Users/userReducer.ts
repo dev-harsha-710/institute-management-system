@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUsersAction } from "../../Action/Users/UserAction";
+import {
+  getUsersAction,
+  registerUserAction,
+} from "../../Action/Users/UserAction";
 import { User } from "../../../features/UserManagement/Services/UserService";
 
 interface UserState {
@@ -44,7 +47,24 @@ const userSlice = createSlice({
           console.log("Fetching users: rejected", state.error);
           state.users = null;
         }
-      );
+      )
+      .addCase(registerUserAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        console.log("Registering user: pending");
+      })
+      .addCase(registerUserAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        console.log("Registering user: fulfilled", action.payload);
+      })
+      .addCase(registerUserAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload
+          ? action.payload.error
+          : "An error occurred.";
+        console.log("Registering user: rejected", state.error);
+      });
   },
 });
 

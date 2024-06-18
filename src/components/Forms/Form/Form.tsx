@@ -43,15 +43,16 @@ const Form: React.FC<IForm> = ({
         {radioInputs && radioInputs.length > 0 && (
           <div className="relative">
             {radioInputs.map((radioInput, index) => (
-              <div className="" key={index}>
+              <div className="">
                 <Label text={radioInput.label} />
                 <div className="flex justify-between pt-3">
                   {radioInput.options &&
                     radioInput.options.map((option) => (
-                      <div key={index} className="flex gap-3">
+                      <div className="flex gap-3">
                         <Label text={option.text} />
                         <RadioInput
                           value={option.value}
+                          actualValue={radioInput.value}
                           onChange={radioInput.onChange}
                           name={radioInput.name}
                         />

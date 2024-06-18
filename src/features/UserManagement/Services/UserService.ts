@@ -1,4 +1,8 @@
 import axios from "axios";
+import {
+  RegisterUserPayload,
+  RegisterUserResponse,
+} from "../../../redux/Action/Users/UserAction";
 
 const API_URL = "https://developerschool-backend.onrender.com/api/v1/";
 
@@ -64,6 +68,16 @@ class UserService {
       return response.data.body;
     } catch (error) {
       throw new Error("Failed to fetch active users");
+    }
+  }
+  async registerUser(
+    userData: RegisterUserPayload
+  ): Promise<RegisterUserResponse> {
+    try {
+      const response = await axios.post(`${API_URL}users/add`, userData);
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to register user");
     }
   }
 }

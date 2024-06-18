@@ -1,15 +1,20 @@
 import React from "react";
 import { IRadioInput } from "../../../modals/FormModal";
 
-const RadioInput: React.FC<IRadioInput> = ({ value, onChange, name }) => {
+const RadioInput: React.FC<IRadioInput> = ({
+  value,
+  actualValue,
+  onChange,
+  name,
+}) => {
   return (
     <div>
       <input
         type="radio"
         value={value}
-        checked={value === value}
-        onChange={onChange}
+        checked={value === actualValue}
         name={name}
+        onClick={() => onChange(value)}
       />
     </div>
   );

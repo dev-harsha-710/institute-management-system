@@ -12,6 +12,7 @@ export interface IForm {
 export type Option = {
   value: string;
   text: string;
+  checked?: boolean;
 };
 export interface IInput {
   type: string;
@@ -27,7 +28,8 @@ export interface IInput {
 export interface IRadioInput {
   name: string;
   value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  actualValue?: string;
+  onChange: (value: string) => void;
   label?: string;
   options?: Option[];
 }
@@ -43,6 +45,7 @@ export interface ISelectionInput {
 export interface IButton {
   type: "button" | "submit" | "reset";
   name: string;
+  onClick?: any;
 }
 
 export interface ILinks {
@@ -59,14 +62,11 @@ export interface IRegister {
   contact: string | undefined;
   email: string;
   qualification: string;
-  percentage: string | undefined;
   passingYear: string;
-  selectedCourse: string;
-  caste: string;
+  casteCategory: string;
   subCaste: string;
-  password: "";
-  confirmPassword: "";
-  dateOfBirth: "";
+  password: string;
+  dob: string;
 }
 
 export interface ILogin {

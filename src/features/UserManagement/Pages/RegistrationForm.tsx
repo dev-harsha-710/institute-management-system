@@ -1,16 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import Button from "../../../components/Forms/Button/Button";
 import Label from "../../../components/Forms/Label/label";
 import Input from "../../../components/Forms/Input/Input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FormWrapper from "../../../components/Forms/FormWrapper/FormWrapper";
 import Header from "../../../components/Forms/Header/Header";
 import { IRegister } from "../../../modals/FormModal";
 import Form from "../../../components/Forms/Form/Form";
-import { text } from "stream/consumers";
-import { convertKeysToSnakeCase } from "../../../utils/CaseConvertor";
+import {
+  convertDateToISO,
+  convertDateToddMMyyyy,
+  convertKeysToSnakeCase,
+} from "../../../utils/CaseConvertor";
+import { registerUserAction } from "../../../redux/Action/Users/UserAction";
+import { AppDispatch } from "../../../redux/Store/store";
+import { format } from "date-fns";
 
 const RegistrationForm: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const [info, setInfo] = useState<IRegister>({
     firstName: "",
     lastName: "",
@@ -19,23 +28,19 @@ const RegistrationForm: React.FC = () => {
     contact: "",
     email: "",
     qualification: "",
-    percentage: "",
     passingYear: "",
-    selectedCourse: "",
-    caste: "",
+    casteCategory: "",
     subCaste: "",
     password: "",
-    confirmPassword: "",
-    dateOfBirth: "",
+    dob: "",
   });
-  useEffect(() => {
-    const obj = convertKeysToSnakeCase(info);
-    console.log(obj);
-  }, []);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
     setInfo({
       ...info,
       [event.target.name]: event.target.value,
+      [name]: name === "dob" ? convertDateToISO(value) : value,
     });
   };
 
@@ -45,16 +50,21 @@ const RegistrationForm: React.FC = () => {
       [event.target.name]: event.target.value,
     });
   };
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleRadioChange = (value: string) => {
     setInfo({
       ...info,
-      gender: event.target.value,
+      gender: value,
     });
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
+    const snakeCaseInfo = convertKeysToSnakeCase(info);
+    console.log("Submitting payload:", snakeCaseInfo);
+    dispatch(registerUserAction(snakeCaseInfo));
     console.log("Form Submitted!");
+    navigate("/login");
   };
 
   const handleReset = () => {
@@ -66,14 +76,11 @@ const RegistrationForm: React.FC = () => {
       contact: "",
       email: "",
       qualification: "",
-      percentage: "",
       passingYear: "",
-      selectedCourse: "",
-      caste: "",
+      casteCategory: "",
       subCaste: "",
       password: "",
-      confirmPassword: "",
-      dateOfBirth: "",
+      dob: "",
     });
   };
 
@@ -93,7 +100,6 @@ const RegistrationForm: React.FC = () => {
                 name: "firstName",
                 label: "First Name",
               },
-
               {
                 type: "text",
                 placeholder: "Enter your last name",
@@ -109,6 +115,14 @@ const RegistrationForm: React.FC = () => {
                 onChange: handleInputChange,
                 name: "email",
                 label: "Email",
+              },
+              {
+                type: "password",
+                placeholder: "Enter your correct password",
+                value: info.password,
+                onChange: handleInputChange,
+                name: "password",
+                label: "Password",
               },
               {
                 type: "text",
@@ -134,14 +148,14 @@ const RegistrationForm: React.FC = () => {
                 name: "qualification",
                 label: "Qualification",
               },
-              {
-                type: "text",
-                placeholder: "Enter your percentage",
-                value: info.percentage,
-                onChange: handleInputChange,
-                name: "percentage",
-                label: "Percentage",
-              },
+              // {
+              //   type: "text",
+              //   placeholder: "Enter your percentage",
+              //   value: info.percentage,
+              //   onChange: handleInputChange,
+              //   name: "percentage",
+              //   label: "Percentage",
+              // },
               {
                 type: "text",
                 placeholder: "Enter your passing year",
@@ -150,35 +164,27 @@ const RegistrationForm: React.FC = () => {
                 name: "passingYear",
                 label: "Passing year",
               },
-              {
-                type: "password",
-                placeholder: "Enter your correct password",
-                value: info.password,
-                onChange: handleInputChange,
-                name: "password",
-                label: "Password",
-              },
-              {
-                type: "password",
-                placeholder: "Confirm your password",
-                value: info.confirmPassword,
-                onChange: handleInputChange,
-                name: "confirmPassword",
-                label: "Confirm Password",
-              },
+              // {
+              //   type: "password",
+              //   placeholder: "Confirm your password",
+              //   value: info.confirmPassword,
+              //   onChange: handleInputChange,
+              //   name: "confirmPassword",
+              //   label: "Confirm Password",
+              // },
               {
                 type: "date",
                 placeholder: "",
-                value: info.dateOfBirth,
+                value: info.dob,
                 onChange: handleInputChange,
-                name: "dateOfBirth",
+                name: "dob",
                 label: "Date of Birth",
               },
             ]}
             selectInputs={[
               {
-                name: "caste",
-                value: info.caste,
+                name: "casteCategory",
+                value: info.casteCategory,
                 onChange: handleSelectChange,
                 label: "Caste",
                 options: [
@@ -222,12 +228,12 @@ const RegistrationForm: React.FC = () => {
             ]}
             buttons={[
               { type: "submit", name: "Submit" },
-              { type: "reset", name: "Reset" },
+              { type: "reset", name: "Reset", onClick: handleReset },
             ]}
             signinOrSignup={{
               link: "/login",
               text: "Sign in",
-              extraText: "Already a member ?",
+              extraText: "Already a member?",
             }}
           />
         </div>
