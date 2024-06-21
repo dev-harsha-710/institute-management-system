@@ -6,6 +6,8 @@ import { IForm } from "../../../modals/FormModal";
 import Links from "../ExternalLinks/Links";
 import SelectionInput from "../Input/SelectionInput";
 import RadioInput from "../Input/RadioInput";
+import DatePicker from "react-datepicker";
+import DatePickerComponent from "../Input/DatePicker";
 
 const Form: React.FC<IForm> = ({
   submit,
@@ -15,6 +17,7 @@ const Form: React.FC<IForm> = ({
   resetPassword,
   signinOrSignup,
   radioInputs,
+  dateInputs,
 }) => {
   return (
     <form className="mt-4" onSubmit={submit}>
@@ -37,6 +40,17 @@ const Form: React.FC<IForm> = ({
               readOnly={myInput.readOnly}
               min={myInput.min}
               max={myInput.max}
+            />
+          </div>
+        ))}
+        {dateInputs?.map((dateInput) => (
+          <div className="relative">
+            <Label text={dateInput.label} />
+            <DatePickerComponent
+              selected={dateInput.selected}
+              onChange={(date) => dateInput.onChange(date)}
+              dateFormat={dateInput.dateFormat}
+              name={dateInput.name}
             />
           </div>
         ))}

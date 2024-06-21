@@ -6,7 +6,7 @@ import Input from "../../../components/Forms/Input/Input";
 import { Link, useNavigate } from "react-router-dom";
 import FormWrapper from "../../../components/Forms/FormWrapper/FormWrapper";
 import Header from "../../../components/Forms/Header/Header";
-import { IRegister } from "../../../modals/FormModal";
+import { IRegister, IRegisterPayload } from "../../../modals/FormModal";
 import Form from "../../../components/Forms/Form/Form";
 import {
   convertDateToISO,
@@ -31,7 +31,7 @@ const RegistrationForm: React.FC = () => {
     casteCategory: "",
     subCaste: "",
     password: "",
-    dob: "",
+    date: new Date(Date.now()),
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +39,6 @@ const RegistrationForm: React.FC = () => {
     setInfo({
       ...info,
       [event.target.name]: event.target.value,
-      [name]: name === "dob" ? convertDateToISO(value) : value,
     });
   };
 
@@ -57,9 +56,18 @@ const RegistrationForm: React.FC = () => {
     });
   };
 
+  const handleDOBChange = (date: Date | null) => {
+    setInfo({
+      ...info,
+      date: date,
+    });
+  };
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const snakeCaseInfo = convertKeysToSnakeCase(info);
+    let payload: IRegisterPayload = info;
+    payload.dob = convertDateToISO(info.date);
+    const snakeCaseInfo = convertKeysToSnakeCase(payload);
     console.log("Submitting payload:", snakeCaseInfo);
     dispatch(registerUserAction(snakeCaseInfo));
     console.log("Form Submitted!");
@@ -78,7 +86,7 @@ const RegistrationForm: React.FC = () => {
       casteCategory: "",
       subCaste: "",
       password: "",
-      dob: "",
+      date: new Date(Date.now()),
     });
   };
 
@@ -162,22 +170,15 @@ const RegistrationForm: React.FC = () => {
                 name: "passingYear",
                 label: "Passing year",
               },
+
               // {
-              //   type: "password",
-              //   placeholder: "Confirm your password",
-              //   value: info.confirmPassword,
+              //   type: "date",
+              //   placeholder: "",
+              //   value: info.dob,
               //   onChange: handleInputChange,
-              //   name: "confirmPassword",
-              //   label: "Confirm Password",
+              //   name: "dob",
+              //   label: "Date of Birth",
               // },
-              {
-                type: "date",
-                placeholder: "",
-                value: info.dob,
-                onChange: handleInputChange,
-                name: "dob",
-                label: "Date of Birth",
-              },
             ]}
             selectInputs={[
               {
@@ -209,6 +210,15 @@ const RegistrationForm: React.FC = () => {
                   { value: "buddhistSubCaste", text: "Buddhist-SubCaste" },
                   { value: "otherSubCaste", text: "Other-SubCaste" },
                 ],
+              },
+            ]}
+            dateInputs={[
+              {
+                selected: info.date,
+                onChange: (date: Date | null) => handleDOBChange(date),
+                dateFormat: "yyyy-MM-dd",
+                name: "dob",
+                label: "Date of Birth",
               },
             ]}
             radioInputs={[

@@ -8,6 +8,7 @@ export interface IForm {
   signinOrSignup?: ILinks;
   selectInputs?: ISelectionInput[];
   radioInputs?: IRadioInput[];
+  dateInputs?: IDateInput[];
 }
 export type Option = {
   value: string;
@@ -42,6 +43,14 @@ export interface ISelectionInput {
   options: Option[];
 }
 
+export interface IDateInput {
+  selected: Date | null;
+  onChange: (date: Date | null) => void;
+  dateFormat: string;
+  name: string;
+  label?: string;
+}
+
 export interface IButton {
   type: "button" | "submit" | "reset";
   name: string;
@@ -66,7 +75,11 @@ export interface IRegister {
   casteCategory: string;
   subCaste: string;
   password: string;
-  dob: string;
+  date: Date | null;
+}
+
+export interface IRegisterPayload extends IRegister {
+  dob?: string;
 }
 
 export interface ILogin {

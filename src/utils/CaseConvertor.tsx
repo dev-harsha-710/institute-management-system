@@ -11,9 +11,16 @@ export const convertDateToddMMyyyy = (date: string): string => {
 
   return formattedDate;
 };
-export const convertDateToISO = (date: string): string => {
-  const [day, month, year] = date.split("-");
-  return `${year}-${month}-${day}`;
+export const convertDateToISO = (dateInput: Date | null): string => {
+  let dateStr = String(dateInput);
+  const date = new Date(dateStr);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const year = date.getFullYear();
+
+  const formattedDate = `${day}-${month}-${year}`;
+  return formattedDate;
 };
 
 export const convertKeysToSnakeCase = (obj: any): any => {
