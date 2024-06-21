@@ -19,7 +19,6 @@ import { format } from "date-fns";
 
 const RegistrationForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const [info, setInfo] = useState<IRegister>({
     firstName: "",
     lastName: "",
@@ -64,7 +63,6 @@ const RegistrationForm: React.FC = () => {
     console.log("Submitting payload:", snakeCaseInfo);
     dispatch(registerUserAction(snakeCaseInfo));
     console.log("Form Submitted!");
-    navigate("/login");
   };
 
   const handleReset = () => {

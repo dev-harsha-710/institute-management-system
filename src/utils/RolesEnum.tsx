@@ -2,5 +2,5 @@ export enum UserRole {
   ADMIN = 1,
   FACULTY,
   STUDENT,
-  GUEST,
+  USER,
 }

@@ -29,6 +29,7 @@ function App() {
               element={
                 <ProtectedRoute
                   allowedRoles={[
+                    UserRole.USER,
                     UserRole.ADMIN,
                     UserRole.FACULTY,
                     UserRole.STUDENT,
