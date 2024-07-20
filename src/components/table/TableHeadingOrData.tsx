@@ -1,7 +1,7 @@
 import React from "react";
 
 interface TableHeadingOrDataProps {
-  text: string | number;
+  text?: string | number;
   type: "heading" | "data";
   className?: string;
   onClick?: () => void;

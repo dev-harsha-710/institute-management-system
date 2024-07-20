@@ -1,8 +1,8 @@
 import React from "react";
-import { ICard } from "../../modals/CardModal";
+import { ICourse } from "../../modals/CardModal";
 import Button from "../Forms/Button/Button";
 
-const Card: React.FC<ICard> = ({
+const Card: React.FC<ICourse> = ({
   imageUrl,
   productName,
   duration,

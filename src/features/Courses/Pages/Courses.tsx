@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Cards from "../../../components/Cards/Cards";
-import HTML from "../../../assets/images/HTML.png";
+import HTML from "../../../assets/images/HTML.png"; // Default image for courses
 import Form from "../../../components/Forms/Form/Form";
 import useAuth from "../../../hooks/useAuth";
 import Modal from "../../../components/Modals/Modal";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 interface IEnrollmentData {
   courseName: string;
@@ -20,12 +21,12 @@ interface IEnrollmentData {
 const Courses = () => {
   const [toggle, setToggle] = useState(false);
   const [selectedCard, setSelectedCard] = useState<any>(null);
-  // const { auth } = useAuth();
+  const [courses, setCourses] = useState<any[]>([]);
   const auth = useSelector((state: any) => state.auth);
 
   const initialEnrollmentData: IEnrollmentData = {
-    courseName: selectedCard ? selectedCard.productName : "",
-    courseFees: selectedCard ? selectedCard.price.toString() : "",
+    courseName: selectedCard?.course_name || "",
+    courseFees: selectedCard?.course_fees?.toString() || "",
     paidFees: "",
     balanceFees: "",
     incomeAmount: "",
@@ -39,10 +40,10 @@ const Courses = () => {
   );
 
   useEffect(() => {
-    if (toggle && selectedCard) {
+    if (selectedCard) {
       setEnrollmentData({
-        courseName: selectedCard.productName,
-        courseFees: selectedCard.price.toString(),
+        courseName: selectedCard ? selectedCard.productName : "",
+        courseFees: selectedCard ? selectedCard.price.toString() : "",
         paidFees: "",
         balanceFees: "",
         incomeAmount: "",
@@ -51,7 +52,27 @@ const Courses = () => {
         revenueCategoryId: "1063",
       });
     }
-  }, [toggle, selectedCard, auth]);
+  }, [selectedCard, auth.user.user_id]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get(
+          "https://developerschool-backend.onrender.com/api/v1/course2/get"
+        );
+        console.log("API Response:", response.data);
+        if (response.data && Array.isArray(response.data.body)) {
+          setCourses(response.data.body);
+        } else {
+          console.error("Unexpected response format:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const toggleModal = () => {
     setToggle(!toggle);
@@ -94,7 +115,7 @@ const Courses = () => {
 
   const handleCardClick = (data: any) => {
     setSelectedCard(data);
-    toggleModal();
+    setToggle(true);
   };
 
   const handleFormSubmit = (formData: any) => {
@@ -152,8 +173,8 @@ const Courses = () => {
                 readOnly: true,
               },
               {
-                type: "hidden",
                 name: "incomeAmount",
+                type: "hidden",
                 value: enrollmentData.incomeAmount,
                 onChange: handleInputChange,
                 placeholder: "",
@@ -195,59 +216,21 @@ const Courses = () => {
         Available Courses
       </div>
 
-      <Cards
-        cardData={[
-          {
-            imageUrl: HTML,
-            duration: 1,
-            price: 299,
-            productName: "HTML 4",
-            description: "Skeleton of website",
+      {Array.isArray(courses) && courses.length > 0 ? (
+        <Cards
+          cardData={courses.map((course) => ({
+            imageUrl: course.imageUrl || HTML,
+            duration: course.course_duration,
+            price: course.course_fees,
+            productName: course.course_name,
+            description: course.description || "",
             onClick: handleCardClick,
-          },
-          {
-            imageUrl: HTML,
-            duration: 1,
-            price: 299,
-            productName: "HTML 5",
-            description: "Enhanced HTML",
-            onClick: handleCardClick,
-          },
-          {
-            imageUrl: HTML,
-            duration: 2,
-            price: 399,
-            productName: "CSS",
-            description: "Styles the website",
-            onClick: handleCardClick,
-          },
-          {
-            imageUrl: HTML,
-            duration: 1,
-            price: 399,
-            productName: "CSS 3",
-            description: "Enhanced CSS",
-            onClick: handleCardClick,
-          },
-          {
-            imageUrl: HTML,
-            duration: 3,
-            price: 599,
-            productName: "Javascript",
-            description: "Makes the website dynamic",
-            onClick: handleCardClick,
-          },
-          {
-            imageUrl: HTML,
-            duration: 8,
-            price: 1500,
-            productName: "Java",
-            description: "Java fuels enterprise solutions",
-            onClick: handleCardClick,
-          },
-        ]}
-        onCardClick={handleCardClick}
-      />
+          }))}
+          onCardClick={handleCardClick}
+        />
+      ) : (
+        <p>No courses available.</p>
+      )}
     </>
   );
 };

@@ -52,7 +52,7 @@ export interface IDateInput {
 }
 
 export interface IButton {
-  type: "button" | "submit" | "reset";
+  type: "submit" | "button" | "reset";
   name: string;
   onClick?: any;
 }

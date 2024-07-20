@@ -24,7 +24,7 @@ const Sidebar = () => {
     <div className="bg-slate-700 h-full w-60 text-left">
       <div className="p-4">
         <ul>
-          <SidebarItem icon={RiAdminFill} text="Admin" to="/admin" />
+          <SidebarItem icon={RiAdminFill} text="Admin" to="/course-admin" />
           <SidebarItem icon={BsBookHalf} text="Courses" to="/" />
           <SidebarItem icon={BsGraphUpArrow} text="Revenue" to="/revenue" />
           <SidebarItem icon={MdCurrencyRupee} text="Income" to="/income" />

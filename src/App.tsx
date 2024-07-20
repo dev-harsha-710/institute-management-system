@@ -15,6 +15,7 @@ import { UserRole } from "./utils/RolesEnum";
 import Unauthorized from "./features/UserManagement/Pages/Unauthorized";
 import Users from "./features/UserManagement/Pages/Users";
 import Table from "./components/table/Table";
+import CourseAdmin from "./features/Courses/Pages/CoursesAdmin";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
               <Route path="/income" element={<Courses />} />
+              <Route path="/course-admin" element={<CourseAdmin />} />
             </Route>
           </Route>
         </Routes>

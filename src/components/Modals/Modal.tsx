@@ -6,8 +6,8 @@ import useAuth from "../../hooks/useAuth";
 export interface IModal {
   isOpen: boolean;
   toggle: () => void;
-  onSubmit: (data: any) => void;
-  selectedCard: any;
+  onSubmit?: (data: any) => void;
+  selectedCard?: any;
   heading: string;
   children: React.ReactNode;
 }

@@ -1,8 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import UserService, {
-  User,
-} from "../../../features/UserManagement/Services/UserService";
+import UserService from "../../../features/UserManagement/Services/UserService";
 import axios from "axios";
+import { IUser } from "../../../features/UserManagement/Modals/UserModals";
 
 export interface RegisterUserPayload {
   first_name: string;
@@ -28,13 +27,16 @@ interface RegisterUserError {
 interface GetAllUserError {
   error: string;
 }
+interface DeactivateUserError {
+  error: string;
+}
 
 export const getUsersAction = createAsyncThunk<
-  { users: User[] },
+  { users: IUser[] },
   { userType: string; isActive: boolean },
   { rejectValue: GetAllUserError }
 >("user/get", async (payload, { rejectWithValue }) => {
-  let users: User[] = [];
+  let users: IUser[] = [];
   try {
     switch (payload.userType) {
       case "admins":
@@ -68,6 +70,21 @@ export const registerUserAction = createAsyncThunk<
       userData
     );
     return response.data;
+  } catch (error: any) {
+    return rejectWithValue({
+      error: error.response?.data?.message || error.message,
+    });
+  }
+});
+export const deactivateUserAction = createAsyncThunk<
+  void,
+  number,
+  { rejectValue: DeactivateUserError }
+>("user/deactivate", async (userId, { rejectWithValue }) => {
+  try {
+    await axios.put(
+      `https://developerschool-backend.onrender.com/api/v1/users/deactivate/${userId}`
+    );
   } catch (error: any) {
     return rejectWithValue({
       error: error.response?.data?.message || error.message,

@@ -3,29 +3,12 @@ import {
   RegisterUserPayload,
   RegisterUserResponse,
 } from "../../../redux/Action/Users/UserAction";
+import { IUser } from "../Modals/UserModals";
 
 const API_URL = "https://developerschool-backend.onrender.com/api/v1/";
 
-export interface User {
-  user_id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  contact: number;
-  address: string;
-  qualification: string;
-  passing_year: number;
-  dob: string;
-  gender: string;
-  caste_category: string;
-  subcaste: string;
-  role_id: number;
-  password: string;
-  isActive: boolean;
-}
-
 class UserService {
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers(): Promise<IUser[]> {
     try {
       const response = await axios.get(`${API_URL}users`);
       return response.data.body;
@@ -34,7 +17,7 @@ class UserService {
     }
   }
 
-  async getAllAdmins(): Promise<User[]> {
+  async getAllAdmins(): Promise<IUser[]> {
     try {
       const response = await axios.get(`${API_URL}admin`);
       return response.data.body;
@@ -43,7 +26,7 @@ class UserService {
     }
   }
 
-  async getAllFaculties(): Promise<User[]> {
+  async getAllFaculties(): Promise<IUser[]> {
     try {
       const response = await axios.get(`${API_URL}faculties`);
       return response.data.body;
@@ -52,7 +35,7 @@ class UserService {
     }
   }
 
-  async getAllStudents(): Promise<User[]> {
+  async getAllStudents(): Promise<IUser[]> {
     try {
       const response = await axios.get(`${API_URL}students`);
       return response.data.body;
@@ -61,7 +44,7 @@ class UserService {
     }
   }
 
-  async getActiveUsers(): Promise<User[]> {
+  async getActiveUsers(): Promise<IUser[]> {
     try {
       const response = await axios.get(`${API_URL}users/isActive`, {});
       console.log("getActiveUsers response:", response.data);
@@ -78,6 +61,13 @@ class UserService {
       return response.data;
     } catch (error) {
       throw new Error("Failed to register user");
+    }
+  }
+  async deactivateUser(userId: number): Promise<void> {
+    try {
+      await axios.put(`${API_URL}users/deactivate/${userId}`);
+    } catch (error) {
+      throw new Error("Failed to deactivate user");
     }
   }
 }

@@ -1,4 +1,5 @@
-export interface ICard {
+export interface ICourse {
+  //ICourse
   imageUrl: string;
   productName: string;
   duration: number;
@@ -8,6 +9,6 @@ export interface ICard {
 }
 
 export interface ICards {
-  cardData: ICard[];
+  cardData: ICourse[];
   onCardClick: (data: any) => void;
 }

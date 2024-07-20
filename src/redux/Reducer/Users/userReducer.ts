@@ -1,14 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  deactivateUserAction,
   getUsersAction,
   registerUserAction,
 } from "../../Action/Users/UserAction";
-import { User } from "../../../features/UserManagement/Services/UserService";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../../features/UserManagement/Services/authService";
+import { IUser } from "../../../features/UserManagement/Modals/UserModals";
 
 interface UserState {
-  users: User[] | null;
+  users: IUser[] | null;
   loading: boolean;
   error: string | null;
 }
@@ -32,7 +31,7 @@ const userSlice = createSlice({
       })
       .addCase(
         getUsersAction.fulfilled,
-        (state, action: PayloadAction<{ users: User[] }>) => {
+        (state, action: PayloadAction<{ users: IUser[] }>) => {
           state.users = action.payload.users;
           state.loading = false;
           state.error = null;
@@ -66,6 +65,25 @@ const userSlice = createSlice({
           ? action.payload.error
           : "An error occurred.";
         console.log("Registering user: rejected", state.error);
+      })
+      .addCase(deactivateUserAction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deactivateUserAction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        if (state.users) {
+          state.users = state.users.filter(
+            (user) => user.user_id !== action.meta.arg
+          );
+        }
+      })
+      .addCase(deactivateUserAction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload
+          ? action.payload.error
+          : "An error occurred.";
       });
   },
 });

@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../../redux/Store/hooks";
+import {
+  deactivateUserAction,
+  getUsersAction,
+} from "../../../redux/Action/Users/UserAction";
 import { RootState } from "../../../redux/Store/store";
-import { getUsersAction } from "../../../redux/Action/Users/UserAction";
-import { useAppDispatch } from "../../../redux/Store/hooks";
 import Table from "../../../components/table/Table";
-import { User } from "../Services/UserService";
 
 const Users: React.FC = () => {
-  const [userType, setUserType] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage] = useState<number>(10);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("first_name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [userType, setUserType] = useState<string>("");
   const [isActive, setIsActive] = useState<boolean>(false);
-
+  const [length, setLength] = useState<number | undefined>(0);
   const dispatch = useAppDispatch();
-  const { users, loading, error } = useSelector(
-    (state: RootState) => state.user
-  );
-
-  const getUsers = async () => {
-    await dispatch(getUsersAction({ userType, isActive }));
-  };
-
+  const {
+    users = [],
+    loading,
+    error,
+  } = useAppSelector((state: RootState) => state.user);
   useEffect(() => {
-    getUsers();
-    console.log(users);
-  }, [userType, isActive]);
+    setLength(users?.length);
+  }, [users]);
+  useEffect(() => {
+    dispatch(getUsersAction({ userType, isActive }));
+  }, [dispatch, userType, isActive]);
 
   const handleSort = (field: string) => {
     if (field === sortBy) {
@@ -37,33 +37,44 @@ const Users: React.FC = () => {
       setSortOrder("asc");
     }
   };
-  const handleChangeUserType = (type: string) => {
-    setUserType(type);
+
+  const handleDeleteUser = (userId: number) => {
+    dispatch(deactivateUserAction(userId)).then(() => {
+      dispatch(getUsersAction({ userType, isActive }));
+    });
   };
 
-  const totalPages = users ? Math.ceil(users.length / itemsPerPage) : 1;
+  const columns = [
+    { key: "first_name", label: "First Name", sortable: true },
+    { key: "last_name", label: "Last Name", sortable: true },
+    { key: "email", label: "Email", sortable: true },
+    { key: "contact", label: "Contact", sortable: false },
+    { key: "address", label: "Address", sortable: false },
+    { key: "qualification", label: "Qualification", sortable: false },
+  ];
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) return <p>Error loading users: {error}</p>;
 
   return (
     <div>
-      <div></div>
       <Table
-        data={users || []}
+        data={users}
+        columns={columns}
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
-        totalPages={totalPages}
+        totalPages={length ? Math.ceil(length / itemsPerPage) : 0}
         sortBy={sortBy}
         sortOrder={sortOrder}
         searchTerm={searchTerm}
         onSort={handleSort}
         onSearch={setSearchTerm}
         onPageChange={setCurrentPage}
-        handleChangeUserType={handleChangeUserType}
+        handleChangeUserType={setUserType}
         userType={userType}
         isActive={isActive}
         setIsActive={setIsActive}
+        onDelete={handleDeleteUser}
       />
     </div>
   );

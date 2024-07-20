@@ -1,17 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import TableHeadingOrData from "../../components/table/TableHeadingOrData";
-import { User } from "../../features/UserManagement/Services/UserService";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { CiSearch } from "react-icons/ci";
-import { useAppDispatch } from "../../redux/Store/hooks";
-import { getUsersAction } from "../../redux/Action/Users/UserAction";
-import { Select } from "@material-tailwind/react";
 import SelectionInput from "../Forms/Input/SelectionInput";
-import Label from "../Forms/Label/label";
-import Input from "../Forms/Input/Input";
+import Button from "../Forms/Button/Button";
+import { convertToObject } from "../../utils/TypeConverter";
+import { IUser } from "../../features/UserManagement/Modals/UserModals";
+import { ICourse } from "../../features/Courses/Modals/CourseModals";
+import { isCourse } from "../../utils/TypeChecker";
 
-interface TableProps {
-  data: User[];
+export interface Column {
+  key: string;
+  label: string;
+  sortable: boolean;
+  render?: (course: ICourse) => JSX.Element;
+}
+
+interface TableProps<T> {
+  data: T[] | null;
+  columns: Column[];
   currentPage: number;
   itemsPerPage: number;
   totalPages: number;
@@ -25,10 +32,19 @@ interface TableProps {
   userType?: string;
   isActive?: boolean;
   setIsActive?: React.Dispatch<React.SetStateAction<boolean>>;
+  onDelete: (id: number) => void;
+  children?: React.ReactNode;
+  actions?: {
+    onEdit: (course: ICourse) => void;
+    onDelete: (id: number) => Promise<void>;
+  };
+  showAddButton?: boolean; // Add this prop
+  onAdd?: () => void; // Add this prop
 }
 
-const Table: React.FC<TableProps> = ({
+const Table = <T extends IUser | ICourse>({
   data,
+  columns,
   currentPage,
   itemsPerPage,
   totalPages,
@@ -42,16 +58,21 @@ const Table: React.FC<TableProps> = ({
   userType,
   isActive,
   setIsActive,
-}) => {
-  // const [isActive, setIsActive] = useState(false);
-
+  onDelete,
+  children,
+  actions,
+  showAddButton, // Add this prop
+  onAdd, // Add this prop
+}: TableProps<T>) => {
   const handleCheckboxChange = async () => {
     setIsActive && setIsActive(!isActive);
   };
 
+  data = data ? data : [];
+  console.log(data);
   const sortedData = [...data].sort((a, b) => {
-    const aValue = a[sortBy as keyof User]?.toString() ?? "";
-    const bValue = b[sortBy as keyof User]?.toString() ?? "";
+    const aValue = a[sortBy as keyof T]?.toString() ?? "";
+    const bValue = b[sortBy as keyof T]?.toString() ?? "";
     if (sortOrder === "asc") {
       return aValue.localeCompare(bValue);
     } else {
@@ -59,8 +80,8 @@ const Table: React.FC<TableProps> = ({
     }
   });
 
-  const filteredData = sortedData.filter((user) =>
-    Object.values(user).some((value) =>
+  const filteredData = sortedData.filter((item) =>
+    Object.values(item).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
@@ -71,34 +92,34 @@ const Table: React.FC<TableProps> = ({
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-white shadow-lg rounded-sm border border-gray-300">
+      {children}
       <header className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
         <div className="flex items-center space-x-3">
-          <SelectionInput
-            name=""
-            onChange={(e) =>
-              handleChangeUserType && handleChangeUserType(e.target.value)
-            }
-            value={userType}
-            options={[
-              { value: "", text: "All" },
-              { value: "admins", text: "Admins" },
-              { value: "faculties", text: "Faculties" },
-              { value: "students", text: "Students" },
-            ]}
-          ></SelectionInput>
-          <th className="px-6 py-3 text-left text-gray-600 font-semibold text-lg">
-            Active
-            <input
-              className="ml-2"
-              type="checkbox"
-              checked={isActive}
-              onChange={handleCheckboxChange}
+          {handleChangeUserType && (
+            <SelectionInput
+              name=""
+              onChange={(e) => handleChangeUserType(e.target.value)}
+              value={userType}
+              options={[
+                { value: "", text: "All" },
+                { value: "admins", text: "Admins" },
+                { value: "faculties", text: "Faculties" },
+                { value: "students", text: "Students" },
+              ]}
             />
-          </th>
+          )}
+          {isActive !== undefined && setIsActive && (
+            <th className="px-6 py-3 text-left text-gray-600 font-semibold text-lg">
+              Active
+              <input
+                className="ml-2"
+                type="checkbox"
+                checked={isActive}
+                onChange={handleCheckboxChange}
+              />
+            </th>
+          )}
         </div>
-        {/* <h2 className="text-center font-bold text-2xl text-gray-800 uppercase ">
-          Users
-        </h2> */}
         <div className="relative">
           <input
             type="text"
@@ -109,51 +130,32 @@ const Table: React.FC<TableProps> = ({
           />
           <CiSearch className="h-5 w-5 absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600" />
         </div>
+        {showAddButton && (
+          <Button
+            type="button"
+            onClick={onAdd}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Add Course
+          </Button>
+        )}
       </header>
       <div className="p-3">
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-full bg-white">
-            <thead className="bg-gray-200 uppercase ">
+            <thead className="bg-gray-200 uppercase">
               <tr>
-                <TableHeadingOrData
-                  key="first_name"
-                  text="First Name"
-                  type="heading"
-                  className="px-6 py-3 text-left text-gray-500 font-semibold uppercase cursor-pointer"
-                  onClick={() => onSort("first_name")}
-                />
-                <TableHeadingOrData
-                  key="last_name"
-                  text="Last Name"
-                  type="heading"
-                  className="px-6 py-3 text-left text-gray-500 font-semibold uppercase cursor-pointer"
-                  onClick={() => onSort("last_name")}
-                />
-                <TableHeadingOrData
-                  key="email"
-                  text="Email"
-                  type="heading"
-                  className="px-6 py-3  text-gray-500 font-semibold uppercase cursor-pointer"
-                  onClick={() => onSort("email")}
-                />
-                <TableHeadingOrData
-                  key="contact"
-                  text="Contact"
-                  type="heading"
-                  className="px-6 py-3 text-left text-gray-500 font-semibold uppercase"
-                />
-                <TableHeadingOrData
-                  key="address"
-                  text="Address"
-                  type="heading"
-                  className="px-6 py-3 text-left text-gray-500 font-semibold uppercase"
-                />
-                <TableHeadingOrData
-                  key="qualification"
-                  text="Qualification"
-                  type="heading"
-                  className="px-6 py-3 text-left text-gray-500 font-semibold uppercase"
-                />
+                {columns.map((column) => (
+                  <TableHeadingOrData
+                    key={column.key}
+                    text={column.label}
+                    type="heading"
+                    className={`px-6 py-3 text-left text-gray-500 font-semibold uppercase cursor-pointer ${
+                      column.sortable ? "cursor-pointer" : ""
+                    }`}
+                    onClick={() => column.sortable && onSort(column.key)}
+                  />
+                ))}
                 <TableHeadingOrData
                   text="Action"
                   type="heading"
@@ -162,46 +164,41 @@ const Table: React.FC<TableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {currentItems.map((user, index) => (
-                <tr key={index} className="hover:bg-gray-100">
-                  <TableHeadingOrData
-                    text={user.first_name}
-                    type="data"
-                    className="px-6 py-3"
-                  />
-                  <TableHeadingOrData
-                    text={user.last_name}
-                    type="data"
-                    className="px-6 py-3"
-                  />
-                  <TableHeadingOrData
-                    text={user.email}
-                    type="data"
-                    className="px-6 py-3"
-                  />
-                  <TableHeadingOrData
-                    text={user.contact?.toString()}
-                    type="data"
-                    className="px-6 py-3"
-                  />
-                  <TableHeadingOrData
-                    text={user.address}
-                    type="data"
-                    className="px-6 py-3"
-                  />
-                  <TableHeadingOrData
-                    text={user.qualification}
-                    type="data"
-                    className="px-6 py-3"
-                  />
-                  {/* <TableHeadingOrData
-                    text="Edit/Delete"
-                    type="data"
-                    className="px-6 py-3"
-                  /> */}
-                  <td className="px-6 py-6 flex justify-between">
-                    <FaPencilAlt className="cursor-pointer text-slate-600" />
-                    <FaTrash className="cursor-pointer text-red-500" />
+              {currentItems.map((item, rowIndex) => (
+                <tr key={rowIndex}>
+                  {columns.map((column, colIndex) => (
+                    <TableHeadingOrData
+                      key={colIndex}
+                      type="data"
+                      text={item[column.key as keyof T] as unknown as string}
+                      className="px-6 py-3"
+                    />
+                  ))}
+                  <td className="px-7 py-6 flex justify-between">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (isCourse(item)) {
+                          let course: ICourse = convertToObject(item);
+                          actions?.onEdit(course);
+                        }
+                      }}
+                      className="bg-white"
+                    >
+                      <FaPencilAlt className="cursor-pointer text-slate-600" />
+                    </Button>
+                    <Button
+                      type="button"
+                      className="bg-white"
+                      onClick={() => {
+                        if (isCourse(item)) {
+                          let course: ICourse = convertToObject(item);
+                          actions?.onDelete(course.course_id);
+                        }
+                      }}
+                    >
+                      <FaTrash className="cursor-pointer text-red-500" />
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -213,7 +210,7 @@ const Table: React.FC<TableProps> = ({
                 onPageChange(currentPage > 1 ? currentPage - 1 : 1)
               }
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50 "
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
             >
               Previous
             </button>
