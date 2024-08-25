@@ -5,20 +5,20 @@ import { CiSearch } from "react-icons/ci";
 import SelectionInput from "../Forms/Input/SelectionInput";
 import Button from "../Forms/Button/Button";
 import { convertToObject } from "../../utils/TypeConverter";
-import { IUser } from "../../features/UserManagement/Modals/UserModals";
 import { ICourse } from "../../features/Courses/Modals/CourseModals";
 import { isCourse } from "../../utils/TypeChecker";
+import { IUser } from "../../features/UserManagement/Modals/UserModals";
 
-export interface Column {
+export interface Column<T> {
   key: string;
   label: string;
   sortable: boolean;
-  render?: (course: ICourse) => JSX.Element;
+  render?: (item: T) => JSX.Element;
 }
 
 interface TableProps<T> {
   data: T[] | null;
-  columns: Column[];
+  columns: Column<T>[];
   currentPage: number;
   itemsPerPage: number;
   totalPages: number;
@@ -35,11 +35,11 @@ interface TableProps<T> {
   onDelete: (id: number) => void;
   children?: React.ReactNode;
   actions?: {
-    onEdit: (course: ICourse) => void;
+    onEdit: (item: T) => void;
     onDelete: (id: number) => Promise<void>;
   };
-  showAddButton?: boolean; // Add this prop
-  onAdd?: () => void; // Add this prop
+  showAddButton?: boolean;
+  onAdd?: () => void;
 }
 
 const Table = <T extends IUser | ICourse>({
@@ -61,9 +61,13 @@ const Table = <T extends IUser | ICourse>({
   onDelete,
   children,
   actions,
-  showAddButton, // Add this prop
-  onAdd, // Add this prop
+  showAddButton,
+  onAdd,
 }: TableProps<T>) => {
+  const handleEdit = (item: T) => {
+    actions?.onEdit(item);
+  };
+
   const handleCheckboxChange = async () => {
     setIsActive && setIsActive(!isActive);
   };
@@ -136,7 +140,7 @@ const Table = <T extends IUser | ICourse>({
             onClick={onAdd}
             className="bg-blue-500 text-white px-4 py-2 rounded"
           >
-            Add Course
+            Add
           </Button>
         )}
       </header>
@@ -170,19 +174,18 @@ const Table = <T extends IUser | ICourse>({
                     <TableHeadingOrData
                       key={colIndex}
                       type="data"
-                      text={item[column.key as keyof T] as unknown as string}
+                      text={
+                        column.render
+                          ? (column.render(item) as unknown as string)
+                          : (item[column.key as keyof T] as unknown as string)
+                      }
                       className="px-6 py-3"
                     />
                   ))}
                   <td className="px-7 py-6 flex justify-between">
                     <Button
                       type="button"
-                      onClick={() => {
-                        if (isCourse(item)) {
-                          let course: ICourse = convertToObject(item);
-                          actions?.onEdit(course);
-                        }
-                      }}
+                      onClick={() => handleEdit(item)}
                       className="bg-white"
                     >
                       <FaPencilAlt className="cursor-pointer text-slate-600" />
@@ -192,8 +195,9 @@ const Table = <T extends IUser | ICourse>({
                       className="bg-white"
                       onClick={() => {
                         if (isCourse(item)) {
-                          let course: ICourse = convertToObject(item);
-                          actions?.onDelete(course.course_id);
+                          actions?.onDelete(item.course_id);
+                        } else {
+                          actions?.onDelete(item.user_id);
                         }
                       }}
                     >

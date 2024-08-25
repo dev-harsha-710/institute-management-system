@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Cards from "../../../components/Cards/Cards";
-import HTML from "../../../assets/images/HTML.png"; // Default image for courses
+import HTML from "../../../assets/images/HTML.png";
 import Form from "../../../components/Forms/Form/Form";
 import useAuth from "../../../hooks/useAuth";
 import Modal from "../../../components/Modals/Modal";
 import { useSelector } from "react-redux";
 import axios from "axios";
-
-interface IEnrollmentData {
-  courseName: string;
-  courseFees: string;
-  paidFees: string;
-  balanceFees: string;
-  incomeAmount: string;
-  transactionId: string;
-  userId: string;
-  revenueCategoryId: string;
-}
+import {
+  addIncome,
+  enrollStudent,
+  hasStudentEnrolled,
+  updateUserRoleById,
+} from "../Services/EnrollmentService";
+import { IEnrollmentData } from "../Modals/EnrollmentModal";
 
 const Courses = () => {
   const [toggle, setToggle] = useState(false);
@@ -25,6 +21,7 @@ const Courses = () => {
   const auth = useSelector((state: any) => state.auth);
 
   const initialEnrollmentData: IEnrollmentData = {
+    courseId: selectedCard?.id || 0,
     courseName: selectedCard?.course_name || "",
     courseFees: selectedCard?.course_fees?.toString() || "",
     paidFees: "",
@@ -42,6 +39,7 @@ const Courses = () => {
   useEffect(() => {
     if (selectedCard) {
       setEnrollmentData({
+        courseId: selectedCard?.id || 0,
         courseName: selectedCard ? selectedCard.productName : "",
         courseFees: selectedCard ? selectedCard.price.toString() : "",
         paidFees: "",
@@ -106,9 +104,77 @@ const Courses = () => {
     return "";
   };
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log(enrollmentData);
+    console.log(auth.user.role_id);
+
+    try {
+      const incomeResponse = await addIncome({
+        total_fees: parseFloat(enrollmentData.courseFees),
+        balance_fees: parseFloat(enrollmentData.balanceFees),
+        paid_fees: parseFloat(enrollmentData.paidFees),
+        transaction_id: parseInt(enrollmentData.transactionId),
+        amount: parseFloat(enrollmentData.incomeAmount),
+        user_id: parseInt(enrollmentData.userId),
+        revenue_category_id: parseInt(enrollmentData.revenueCategoryId),
+      });
+      console.log(incomeResponse);
+      if (incomeResponse.message !== "INCOME_DETAILS_IS_ADDED_SUCCESSFULLY") {
+        console.log("Income not added");
+      } else {
+        if (enrollmentData.courseId) {
+          const enrollmentStatus = await hasStudentEnrolled(
+            parseInt(enrollmentData.userId),
+            enrollmentData.courseId
+          );
+          console.log("Enrollment status:", enrollmentStatus);
+
+          if (enrollmentStatus.description !== "USER_HAS_ALREADY_ENROLLED") {
+            // logic for enrollment
+            const enrollmentResponse = await enrollStudent(
+              parseInt(enrollmentData.userId),
+              enrollmentData.courseId
+            );
+            console.log("Enrollment Response:", enrollmentResponse);
+
+            if (enrollmentResponse.message !== "ENROLLMENT_SUCCESSFUL") {
+              // check the role of user
+              if (auth.user.role_id === 4) {
+                // if the role_id is 4 then call the update role id = 4
+                try {
+                  // Update the user's role to a different role (example: role_id 3)
+                  const updatedRoleResponse = await updateUserRoleById(
+                    parseInt(enrollmentData.userId),
+                    3
+                  );
+                  console.log(updatedRoleResponse);
+                  console.log(
+                    "Role updated successfully:",
+                    updatedRoleResponse
+                  );
+                } catch (error) {
+                  console.error("Error updating user role:", error);
+                }
+              }
+            } else {
+              console.log("Enrollment failed:", enrollmentResponse.message);
+            }
+          }
+        } else {
+          console.error("Course ID is missing in selectedCard");
+        }
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Failed to process enrollment:",
+          error.response?.data || error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
     setEnrollmentData(initialEnrollmentData);
     setToggle(false);
   };
@@ -219,6 +285,7 @@ const Courses = () => {
       {Array.isArray(courses) && courses.length > 0 ? (
         <Cards
           cardData={courses.map((course) => ({
+            id: course.course_id,
             imageUrl: course.imageUrl || HTML,
             duration: course.course_duration,
             price: course.course_fees,

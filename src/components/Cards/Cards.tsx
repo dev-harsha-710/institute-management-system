@@ -10,6 +10,7 @@ const Cards: React.FC<ICards> = ({ cardData, onCardClick }) => {
         cardData.length > 0 &&
         cardData.map((card) => (
           <Card
+            id={card.id}
             imageUrl={card.imageUrl}
             productName={card.productName}
             duration={card.duration}

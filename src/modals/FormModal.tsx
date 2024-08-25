@@ -19,7 +19,7 @@ export interface IInput {
   type: string;
   name: string;
   placeholder: string;
-  value: string | undefined;
+  value: string | undefined | number;
   label?: string;
   readOnly?: boolean;
   min?: string;

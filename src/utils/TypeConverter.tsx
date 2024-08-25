@@ -20,7 +20,7 @@ export function convertToObject<T extends any>(data: T): any {
       subcaste: data.subcaste,
       user_id: data.user_id,
       isActive: data.isActive,
-      id: data.id,
+      // id: data.id,
     };
 
     return userObject;

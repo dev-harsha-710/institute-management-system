@@ -15,7 +15,6 @@ import {
 } from "../../../utils/CaseConvertor";
 import { registerUserAction } from "../../../redux/Action/Users/UserAction";
 import { AppDispatch } from "../../../redux/Store/store";
-import { format } from "date-fns";
 
 const RegistrationForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

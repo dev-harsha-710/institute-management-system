@@ -3,6 +3,7 @@ import { ICourse } from "../../modals/CardModal";
 import Button from "../Forms/Button/Button";
 
 const Card: React.FC<ICourse> = ({
+  id,
   imageUrl,
   productName,
   duration,
@@ -39,7 +40,14 @@ const Card: React.FC<ICourse> = ({
             <Button
               type="button"
               onClick={() =>
-                onClick({ imageUrl, productName, duration, price, description })
+                onClick({
+                  id,
+                  imageUrl,
+                  productName,
+                  duration,
+                  price,
+                  description,
+                })
               }
               className="text-white bg-gray-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               name="Enroll Now"

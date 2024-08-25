@@ -1,13 +1,13 @@
 export interface IUser {
-  id: number;
+  // id: number;
   user_id: number;
   first_name: string;
   last_name: string;
   email: string;
-  contact: number;
+  contact: string | number;
   address: string;
   qualification: string;
-  passing_year: number;
+  passing_year: string;
   dob: string;
   gender: string;
   caste_category: string;

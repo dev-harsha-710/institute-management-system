@@ -70,6 +70,17 @@ class UserService {
       throw new Error("Failed to deactivate user");
     }
   }
+  async updateUser(userId: number, userData: IUser): Promise<IUser> {
+    try {
+      const response = await axios.put(
+        `${API_URL}urole/updateuser/${userId}`,
+        userData
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to update user");
+    }
+  }
 }
 
 export default new UserService();
